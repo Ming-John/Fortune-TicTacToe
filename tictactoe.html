@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fortune</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #111;
+            color: #fff;
+        }
+
+        #board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 5px;
+            margin: 20px auto;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            font-size: 24px;
+            border: 3px solid #ffd700; /* Golden border */
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #333;
+            color: #fff;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+            box-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #ffd700; /* Golden glow */
+        }
+
+        .cell:hover {
+            background-color: #b88d00; /* Darker gold when hovered */
+            border-color: #b88d00; /* Darker gold border */
+        }
+
+        #message {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #ffd700; /* Golden text */
+            text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #ffd700; /* Golden glow for the message */
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tic Tac Toe</h1>
+
+    <div id="board"></div>
+    <div id="message"></div>
+
+    <script>
+        const board = document.getElementById('board');
+        const message = document.getElementById('message');
+        let currentPlayer = 'X';
+        let gameBoard = ['', '', '', '', '', '', '', '', ''];
+        let gameActive = false;
+        let countdownActive = false;
+
+        function checkWinner() {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+
+            for (const pattern of winPatterns) {
+                const [a, b, c] = pattern;
+                if (gameBoard[a] && gameBoard[a] === gameBoard[b] && gameBoard[a] === gameBoard[c]) {
+                    return gameBoard[a];
+                }
+            }
+
+            if (!gameBoard.includes('')) {
+                return 'T'; // Tie
+            }
+
+            return null;
+        }
+
+        function startNewGame() {
+            gameBoard = ['', '', '', '', '', '', '', '', ''];
+            gameActive = true;
+            currentPlayer = 'X';
+            countdownActive = true;
+            renderBoard();
+
+            setTimeout(() => {
+                message.textContent = '3';
+                setTimeout(() => {
+                    message.textContent = '2';
+                    setTimeout(() => {
+                        message.textContent = '1';
+                        setTimeout(() => {
+                            message.textContent = 'Go!';
+                            setTimeout(() => {
+                                message.textContent = `Player ${currentPlayer}'s turn`;
+                                countdownActive = false;
+                            }, 1000);
+                        }, 1000);
+                    }, 1000);
+                }, 1000);
+            }, 1000);
+        }
+
+        function endGame(result) {
+            if (result === 'T') {
+                message.textContent = 'It\'s a tie!';
+            } else {
+                message.textContent = `${result} wins!`;
+            }
+
+            setTimeout(startNewGame, 2000);
+        }
+
+        function handleClick(index) {
+            if (!gameActive || gameBoard[index] !== '' || countdownActive) {
+                return;
+            }
+
+            gameBoard[index] = currentPlayer;
+            renderBoard();
+
+            const winner = checkWinner();
+            if (winner) {
+                gameActive = false;
+                endGame(winner);
+            } else {
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                message.textContent = `Player ${currentPlayer}'s turn`;
+            }
+        }
+
+        function renderBoard() {
+            board.innerHTML = '';
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.textContent = gameBoard[i];
+                cell.addEventListener('click', () => handleClick(i));
+                board.appendChild(cell);
+            }
+        }
+
+        startNewGame();
+    </script>
+</body>
+</html>
